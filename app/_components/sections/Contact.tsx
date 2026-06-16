@@ -36,7 +36,7 @@ export default function Contact() {
     setServerError("");
 
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -108,7 +108,7 @@ export default function Contact() {
               </p>
               <button
                 onClick={() => setStatus("idle")}
-                className="rounded-full border border-[var(--border)] px-6 py-2.5 text-sm text-[var(--muted)] transition-colors hover:border-[var(--cyan)] hover:text-[var(--cyan)]"
+                className="cursor-pointer rounded-full border border-[var(--border)] px-6 py-2.5 text-sm text-[var(--muted)] transition-colors hover:border-[var(--cyan)] hover:text-[var(--cyan)]"
               >
                 Send another
               </button>
@@ -220,7 +220,7 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--violet)] px-8 py-3.5 text-sm font-medium text-white shadow-[0_0_24px_rgba(124,92,252,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(124,92,252,0.55)] disabled:cursor-not-allowed disabled:bg-[var(--border)] disabled:shadow-none disabled:hover:translate-y-0 sm:w-auto"
+                className="cursor-pointer inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--violet)] px-8 py-3.5 text-sm font-medium text-white shadow-[0_0_24px_rgba(124,92,252,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(124,92,252,0.55)] disabled:cursor-not-allowed disabled:bg-[var(--border)] disabled:shadow-none disabled:hover:translate-y-0 sm:w-auto"
               >
                 {isSubmitting ? (
                   <>

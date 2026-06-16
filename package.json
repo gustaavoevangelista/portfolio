@@ -1,5 +1,5 @@
 {
-  "name":  "gustavo-evangelista-portfolio",
+  "name": "gustavo-evangelista-portfolio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,8 +8,10 @@
     "start": "next start",
     "lint": "eslint"
   },
-   "dependencies": {
+  "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.9",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.19",
     "next": "16.2.9",
@@ -17,6 +19,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.52.1",
+    "resend": "^6.12.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
