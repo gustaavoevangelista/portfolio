@@ -20,7 +20,7 @@ export default function Projects() {
             Selected Projects
           </h2>
           <p className="mb-10 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-[1.05rem]">
-            A few things I&apos;ve built. Replace these with your real work!
+            A few things I&apos;ve built.
           </p>
         </Reveal>
 
@@ -83,6 +83,8 @@ function ProjectCard({ project: p }: { project: typeof PROJECTS[0] }) {
             <a
               key={label}
               href={href}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm font-medium text-[var(--muted)] transition-colors hover:text-[var(--cyan)]"
             >
               {label}

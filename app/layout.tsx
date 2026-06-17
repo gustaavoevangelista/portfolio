@@ -5,6 +5,9 @@ import { PERSON } from '@/lib/data';
 export const metadata: Metadata = {
 	title: `${PERSON.name} — Frontend Engineer`,
 	description: PERSON.tagline,
+	icons: {
+		icon: '/GHE_logo.png',
+	},
 	openGraph: {
 		title: `${PERSON.name} — Frontend Engineer`,
 		description: PERSON.tagline,

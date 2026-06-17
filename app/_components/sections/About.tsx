@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { PERSON } from "@/lib/data";
 import Reveal from "../ui/Reveal";
@@ -34,10 +34,8 @@ export default function About() {
           <p className="mb-3 font-[var(--font-mono)] text-[0.72rem] uppercase tracking-[0.2em] text-[var(--cyan)]">
             About me
           </p>
-          <h2
-            className="mb-6 font-[var(--font-display)] text-4xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-5xl"
-          >
-            Building the web,<br />one pixel at a time.
+          <h2 className="mb-6 font-[var(--font-display)] text-4xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-5xl">
+            Building polished interfaces<br />with AI-native workflows.
           </h2>
           {PERSON.bio.map((p, i) => (
             <p key={i} className="mb-5 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-[1.05rem]">
