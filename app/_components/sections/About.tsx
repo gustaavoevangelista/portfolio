@@ -13,11 +13,10 @@ export default function About() {
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-20">
         {/* Photo placeholder */}
         <Reveal>
-          <div className="relative mx-auto w-full max-w-xl">
+          <div className="relative mx-auto w-full max-w-md">
             <div className="relative flex aspect-[4/5] w-full items-center justify-center gap-3 overflow-hidden rounded-[1.5rem] border border-[var(--border)] bg-[linear-gradient(135deg,#1a1f35,#0f1320)] p-6 text-center font-[var(--font-mono)] text-sm text-[var(--muted)]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(124,92,252,0.13),transparent_65%)]" />
               <span className="relative text-7xl opacity-25 sm:text-8xl">👨‍💻</span>
-              <p className="relative opacity-50">Add your photo here</p>
               <Image src='/foto-perfil.webp' alt='Profile photo' width={200} height={300} className="absolute inset-0 w-full h-full object-cover" />
             </div>
 
