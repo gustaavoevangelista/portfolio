@@ -1,0 +1,51 @@
+---
+title: "How I Structure a Code Review So It's Actually Useful"
+description: "Most code review advice is about tone. The bigger lever is structure — reviewing things in the right order so you catch what matters before you run out of attention."
+date: "2026-05-08"
+readingTime: "6 min read"
+tags: [code-review, engineering-practice, mentorship]
+---
+
+## Tone advice isn't the missing piece
+
+Most advice about code review focuses on tone — be kind, ask questions instead of issuing commands, assume good intent. That's all correct, and worth internalizing. But it's not the part that was actually missing for me. The bigger lever turned out to be *structure*: reviewing things in a deliberate order, instead of reading top to bottom and commenting on whatever catches my eye as I go.
+
+Top-to-bottom, comment-as-you-go reviewing has a specific failure mode: your attention is highest at the start and degrades as the diff gets longer. If the important issue is in file six of eight, you're reviewing it with less focus than file one got — and the file order is usually arbitrary, not risk-ranked.
+
+## The order that actually works
+
+I review in this sequence now, regardless of what order the diff presents files in:
+
+**1. What does this change actually do, at the behavior level?** Before reading a single line of implementation, I read the PR description and skim the diff for *what changed from the user or system's perspective*. If that's not clear from the description, that's the first comment — not a nitpick, a blocker, because I can't review correctness without knowing the intended behavior.
+
+**2. Where's the risk concentrated?** Not every file in a diff carries equal risk. A change to a payment flow, an auth check, or a piece of shared state deserves more scrutiny than a copy change or a new CSS class. I deliberately read the highest-risk files first, while my attention is freshest — not whatever file happens to be first alphabetically or first in the diff viewer.
+
+**3. Correctness — does it do what it claims?** Now the close reading: tracing the logic, checking edge cases, looking for the things that don't throw errors but are still wrong (off-by-one conditions, a comparison that should be `<=` and is `<`, a state update that doesn't account for a stale closure).
+
+**4. Will this be maintainable by someone who isn't the author?** Naming, structure, whether the abstraction matches the actual problem. This is where I flag things like "this works, but the next person reading this won't know why it's structured this way" — and I try to be explicit that it's a maintainability comment, not a correctness one, so the author knows the bar it's being held to.
+
+**5. Tests — do they verify behavior, or just exercise code?** A test suite that passes isn't the same as a test suite that would catch a regression. I check whether tests assert on actual behavior and edge cases, or whether they're asserting on implementation details that will break the next time someone refactors for unrelated reasons.
+
+## What to flag versus what to let go
+
+Not everything worth noticing is worth a blocking comment. I've found it useful to explicitly label feedback by severity, because unlabeled feedback makes the author guess how seriously to take each comment:
+
+- **Blocking** — this is wrong, or this will cause a real problem. Needs to be addressed before merge.
+- **Should fix** — not wrong, but meaningfully better if changed. The author can push back with a reason and that's a legitimate outcome.
+- **Nit / optional** — a preference, not a correctness issue. Explicitly labeled as skippable so it doesn't read as a blocker.
+
+This labeling does double duty: it speeds up the back-and-forth (the author knows what actually needs a response), and it protects review quality, because reviewers who don't separate severities tend to either nitpick everything or, to avoid seeming pedantic, under-flag real issues.
+
+## Feedback that teaches versus feedback that gatekeeps
+
+The same correctness observation can be written two ways:
+
+> "This is wrong, fix it."
+
+> "This will return `undefined` when the list is empty, because `.find()` doesn't throw — it just returns nothing. Worth adding a fallback here."
+
+Both flag the same bug. The second one explains the mechanism, which means the author learns something transferable, not just "fix this one line." Over time, reviews written this way reduce how often you see the same category of bug from the same person — the goal isn't just catching bugs, it's raising the team's collective baseline so fewer of them get written in the first place.
+
+## What this is ultimately for
+
+Code review structured this way takes slightly longer per PR than skimming top to bottom. The trade is that the most expensive mistakes — the ones in high-risk code, reviewed with depleted attention at the end of a long diff — get caught when they're cheapest to fix: before merge, not after a production incident. Structure isn't a tone improvement. It's a way of making sure your limited attention during review gets spent where the actual risk is.

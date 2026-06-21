@@ -1,0 +1,49 @@
+---
+title: "What I Learned Going From Junior to Senior Frontend Engineer"
+description: "The technical skills mattered less than I expected. The shift that actually changed everything was how I thought about risk, time, and other people's time."
+date: "2026-05-05"
+readingTime: "6 min read"
+tags: [career, frontend, mentorship]
+---
+
+## It wasn't a skills problem
+
+If you'd asked me early in my career what separated junior from senior engineers, I'd have said "they know more." More patterns, more APIs, more edge cases memorized. That turned out to be a small part of it. The bigger shift was almost entirely about judgment — what to build carefully versus quickly, what to ask about versus decide alone, and whose time a decision actually costs.
+
+Here's what concretely changed.
+
+## From "does it work" to "will this still work in six months"
+
+Early on, my mental definition of "done" was: the feature behaves correctly for the cases I tested. That's a perfectly reasonable bar when you're learning — you genuinely don't yet have the pattern-recognition to know which untested cases matter.
+
+The shift was developing an instinct for *which* untested paths are actually risky. Not testing everything exhaustively — that's not realistic on a deadline — but developing a feel for "this error-handling branch has never been exercised and I should at least think through what happens here," versus "this is genuinely low-risk and I can move on." That instinct doesn't come from a checklist. It comes from having been burned by the things you didn't check, enough times to build an internal alarm for them.
+
+## From writing code to writing code other people will modify
+
+A junior engineer's code optimizes for "I understand this and it works." A senior engineer's code optimizes for "the next person — who has less context than I currently have — can safely change this in six months." Those are genuinely different goals, and they pull in different directions more often than people expect.
+
+Concretely, this showed up as:
+
+- Naming things for what they *mean*, not what they currently happen to do
+- Leaving a comment explaining *why* a non-obvious decision was made, not what the code does (the code already says what it does)
+- Resisting clever one-liners in favor of code that's boring to read, because boring code is fast to debug at 11pm when something's broken in production
+
+## From reviewing for correctness to reviewing for the next reader
+
+My code reviews used to be almost entirely "does this work, does it break anything." That's necessary but not sufficient. The shift was learning to review for *the team's* long-term velocity — flagging the comment that's now misleading, the abstraction that's solving a problem nobody actually has yet, the test that asserts implementation detail instead of behavior and will break the next time someone refactors for no functional reason.
+
+The hardest part of this shift wasn't learning what to look for. It was learning how to say it without the review feeling like gatekeeping — framing feedback as "here's a thing that might bite us later" rather than "this is wrong."
+
+## From asking "can I do this" to asking "should this be done this way at all"
+
+Juniors (reasonably) tend to take the task as given and focus on executing it well. The senior shift is being willing to push back on the task itself — "this ticket asks for a client-side fix, but the actual bug is server-side, and fixing it here just hides the symptom" — even when that's a less comfortable conversation than just shipping what was asked.
+
+This requires having earned enough trust (and having been right often enough) that pushback gets taken seriously instead of read as friction. That trust is built slowly, through a long string of "actually, you were right" moments — there's no shortcut to it.
+
+## The thing nobody tells you: it gets less certain, not more
+
+I expected seniority to feel like having more answers. It mostly feels like having better questions, and being more comfortable saying "I'm not sure, let's find out" out loud in front of the team. Junior-me thought senior engineers had everything figured out. Senior-me has just gotten more honest, faster, about the edges of what I actually know — and more confident that admitting that doesn't cost me credibility. If anything, it's bought me more.
+
+## If you're early in this transition
+
+The most useful thing I did wasn't reading more, though that helped. It was deliberately seeking out the parts of the codebase nobody wanted to touch — the legacy module, the flaky test suite, the thing with three different "temporary" workarounds stacked on top of each other — and sitting with the discomfort of not immediately understanding it. That discomfort, repeated enough times, is where the judgment actually comes from.

@@ -1,0 +1,67 @@
+---
+title: "The Re-render You Didn't Need: A Practical Guide to React Performance in 2026"
+description: "Most React performance problems aren't about renders being slow — they're about renders happening at all. Here's how to actually find and fix them."
+date: "2026-05-01"
+readingTime: "8 min read"
+tags: [react, performance, javascript]
+---
+
+## The render that didn't need to happen
+
+Every React performance conversation eventually arrives at the same uncomfortable truth: most of the time, the render itself isn't slow. The problem is that it ran at all.
+
+This sounds obvious once you say it out loud, but it changes how you should be debugging. If a component renders in 2ms but renders 400 times when it should render 4, you don't have a "slow render" problem. You have a "should this have run" problem. And those two problems are diagnosed completely differently.
+
+## Step one: stop guessing, start profiling
+
+Before reaching for `useMemo`, `useCallback`, or `React.memo`, open the React DevTools Profiler. Record an interaction, then look at the flame graph. Two things matter here:
+
+- **Which components rendered** that you didn't expect to
+- **Why** — the Profiler will tell you if it was a prop change, a state change, a parent re-render, or a context update
+
+The "why" is the part people skip. A component re-rendering because its parent re-rendered is a completely different fix than a component re-rendering because you're passing a new object literal as a prop on every render.
+
+## The four real causes of unnecessary renders
+
+In practice, almost every unnecessary render traces back to one of these:
+
+**1. New object/array/function identity on every render.** This is the most common one. `style={{ color: 'red' }}` or `onClick={() => doThing(id)}` creates a brand-new reference every single render, which defeats `React.memo` on the child even if nothing meaningful changed.
+
+**2. Context value churn.** If your context value is `{ user, setUser }` created inline in the provider, every provider render creates a new object, and every consumer re-renders — even ones that only care about `user` and never call `setUser`.
+
+**3. Lifting state too high.** State that's local to a small piece of UI but lives three components up forces everything in between to re-render on every keystroke, even components with zero visual dependency on that state.
+
+**4. Derived state recalculated instead of memoized — or memoized when it didn't need to be.** Both directions are common mistakes, which is why profiling first matters more than applying a rule of thumb.
+
+## When `useMemo` and `useCallback` actually help
+
+Here's the part that gets lost in a lot of advice: `useMemo` and `useCallback` are not free. They cost memory, they cost a comparison on every render, and they add a dependency array you now have to keep correct. Reaching for them by default — "wrap everything in `useCallback` just in case" — is itself a performance and maintainability cost.
+
+They're worth it when:
+
+- You're passing a callback or object to a memoized child component (`React.memo`), and without stabilizing the reference, the memoization is a no-op
+- The computation itself is genuinely expensive (sorting a large list, heavy date formatting, derived calculations over big data sets)
+- You're feeding a value into a dependency array of another hook, and an unstable reference would cause that hook to fire on every render
+
+They're *not* worth it for:
+
+- A `<button onClick={...}>` whose parent isn't memoized — there's nothing for `useCallback` to protect
+- Cheap computations like a string concatenation or a simple boolean check
+- "Future proofing" a component that has no measured performance problem
+
+## How the React Compiler changes this
+
+If you're working with a recent React version that includes the compiler, a lot of the manual memoization above becomes the compiler's job rather than yours. The compiler can detect stable values and avoid unnecessary re-renders automatically, without you writing `useMemo` everywhere.
+
+This doesn't mean the mental model stops mattering — you still need to understand *why* a render happened to debug the cases the compiler can't infer (effects with subtle dependency issues, third-party libraries that mutate state outside React's view). But it does mean a lot of the boilerplate memoization that used to be considered "best practice" is becoming unnecessary, and in some codebases, actively discouraged because it gets in the compiler's way.
+
+## A simple mental checklist
+
+When you find a component re-rendering more than expected:
+
+1. Profile it. Confirm what triggered the render.
+2. Ask: did anything the component actually *displays* change? If not, the fix is usually `React.memo` plus stabilizing the props it receives.
+3. Ask: is state living higher than it needs to? If so, the fix is moving it down, not memoizing around it.
+4. Only then consider `useMemo`/`useCallback` — and only for the specific value causing the problem, not as a blanket policy.
+
+Performance work in React isn't about sprinkling hooks everywhere. It's about understanding the chain of "what changed, and what does that force to re-run" — and fixing the chain, not the symptom.

@@ -1,0 +1,43 @@
+---
+title: "Where AI Coding Tools Break Down on Frontend Work"
+description: "AI tools are remarkably good at logic and boilerplate. Visual and interactive polish is a different story — here's where the gap actually shows up."
+date: "2026-05-04"
+readingTime: "6 min read"
+tags: [ai, frontend, css, developer-experience]
+---
+
+## The asymmetry nobody talks about enough
+
+AI coding assistants have gotten genuinely good at a lot of frontend work — component structure, state logic, API wiring, even reasonably idiomatic TypeScript. But there's a consistent asymmetry: the more a task depends on *logic*, the better these tools perform. The more it depends on *felt, visual correctness*, the more the gap shows.
+
+This isn't a knock on the tools. It's a useful diagnostic for knowing when to trust the output and when to slow down and look closely yourself.
+
+## Specificity wars and cascade order
+
+CSS specificity and source order are notoriously easy to get subtly wrong, and AI-generated CSS is no exception. A model might generate a rule that's *correct in isolation* but loses to an existing rule elsewhere in your stylesheet because of specificity it has no visibility into. Unlike a missing semicolon, this kind of bug doesn't throw an error — it just silently doesn't apply, and you're left guessing why a style "isn't working" when the code looks completely reasonable.
+
+The practical implication: when an AI-generated style doesn't visually apply, don't ask "is this CSS valid" — ask "what else in my stylesheet could be winning the cascade."
+
+## Animation timing and easing
+
+Functionally, an animation that "loops" or "transitions" is easy for a model to generate — the syntax is straightforward. But *whether it feels right* is a different kind of correctness that has nothing to do with whether the code runs. A `cubic-bezier` curve that's technically valid CSS can still feel sluggish, abrupt, or mechanical, and there's no compiler error for "this animation feels off."
+
+This is one of the clearest places where the model can produce code that's 100% syntactically correct and still requires a human iterating by eye — nudging duration, easing, and delay until it actually feels good. That iteration loop (run it, watch it, adjust by feel, repeat) isn't something a single prompt captures well.
+
+## Layout that "looks right" vs. layout that's actually robust
+
+A generated layout often looks correct in the first screenshot or the first viewport size you check. The failure mode shows up at the edges: a long name that wraps awkwardly, a missing image that collapses a grid, a button label in a different language that's twice as long. AI-generated layouts are frequently optimized for the happy path you described, not the edge cases you didn't think to mention — which, to be fair, is also a common human mistake. The difference is that a model won't proactively flag "you should test this with longer content" the way an experienced reviewer might.
+
+## Accessibility that's structurally present but not actually usable
+
+This is a subtler one. A model will often include the *correct-looking* ARIA attributes — `aria-label`, `role`, `aria-expanded` — because they're common in training data near similar components. But correct *presence* of an attribute isn't the same as correct *behavior*. A dropdown might have `aria-expanded` toggling correctly while still trapping focus incorrectly, or a modal might have the right role while still being dismissible in a way that confuses screen reader users.
+
+The output looks like someone who knows accessibility wrote it. Whether it behaves like that under a real screen reader is a separate question that requires actually testing with one — something no amount of reading the generated code will substitute for.
+
+## Why "looks right" is the dangerous middle ground
+
+The common thread across all of these: the failures aren't loud. The code compiles, the page renders, nothing throws in the console. The gap only shows up when a human actually *looks* — at the animation, at the edge-case layout, at the cascade, at the real assistive-technology behavior. That makes this category of bug uniquely easy to ship, because the normal signal that tells you to slow down (an error) never fires.
+
+## The practical takeaway
+
+Use AI generously for structure, state, and logic — that's where it earns its speed. But treat anything with a *visual or experiential* dimension — animation feel, responsive edge cases, real accessibility behavior, cascade interactions — as requiring the same manual verification you'd give your own first draft. The tool changes how fast you get to a draft. It doesn't change what counts as actually finished.

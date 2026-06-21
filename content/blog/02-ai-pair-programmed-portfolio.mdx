@@ -1,0 +1,57 @@
+---
+title: "I Let an AI Pair-Program My Portfolio. Here's What It Got Wrong."
+description: "A candid walkthrough of where AI-assisted code generation got my Next.js portfolio right, where it quietly broke, and what that taught me about reviewing AI output."
+date: "2026-05-02"
+readingTime: "7 min read"
+tags: [ai, nextjs, react, developer-experience]
+---
+
+## The setup
+
+I used an AI assistant to scaffold most of this portfolio site — the layout, the components, even the contact form's validation logic. It was fast. Genuinely, dramatically fast. What used to take me an evening of boilerplate took minutes.
+
+But "fast" and "correct" are different axes, and the gap between them is exactly where this got interesting.
+
+## Where it actually helped
+
+To be fair before being critical: the AI was excellent at the things that are mechanical but tedious. Generating a Zod schema that mirrors a form's fields, wiring up `react-hook-form` with that schema, writing the boilerplate for an API route — all of this was correct on the first pass and saved real time. It's also genuinely good at maintaining visual consistency once you've established a design language; I described a color palette once and it stayed consistent across a dozen files.
+
+This is the unglamorous truth about AI coding tools right now: they're best at *propagating a pattern you've already established*, not at making the first judgment call.
+
+## Where it broke: Server and Client Component boundaries
+
+The most instructive failure was this error:
+
+```
+Error: Event handlers cannot be passed to Client Component props.
+```
+
+The AI had generated several "About," "Projects," and "Footer" components with `onMouseEnter`/`onMouseLeave` handlers — but had left them as default Server Components, because nothing in the immediate code *looked* client-side. There was no `useState`, no `useEffect`. Just JSX with event handlers attached.
+
+This is a genuinely subtle trap. In the Pages Router era, this distinction didn't exist — everything was effectively a client component. In the App Router, "does this need interactivity" is a question you have to ask about *every* component, not just the ones that obviously need state. The AI pattern-matched "this looks like a presentational component" and missed that presentational doesn't mean non-interactive.
+
+The fix was mechanical once diagnosed — add `"use client"` to the files with handlers — but diagnosing it required understanding *why* the boundary exists, not just pattern-matching the error message.
+
+## Where it broke: brittle string manipulation disguised as logic
+
+In one component, I'd asked for project cards with gradient backgrounds. The AI generated something like:
+
+```js
+background: `linear-gradient(135deg, ${gradient.replace("from-[","").replace("]","").split(" to-[")[0]}, ...)`
+```
+
+This is the kind of code that *works* in the example you tested it with and breaks the moment your data changes shape even slightly. It was solving a problem that didn't need solving — storing a Tailwind-style gradient string and then parsing it apart at render time, instead of just storing the two colors directly. The AI had over-engineered a simple data shape because it pattern-matched "gradient" to "Tailwind gradient class syntax" from training data, not from what the actual rendering need was.
+
+Nothing about this throws an error. It just sits there as a landmine — fragile, hard to read, and confusing for the next person (including future-me) who has to touch it.
+
+## The pattern behind both failures
+
+Neither of these was a "the AI doesn't understand React" failure. Both were failures of **context the model didn't have and didn't ask for**: which rendering environment a component runs in, and what the actual downstream consumer of a value needs. The code was syntactically fluent and stylistically confident in both cases — which is exactly what makes this kind of bug dangerous. It doesn't look uncertain. It looks done.
+
+## What I changed about how I review AI output now
+
+- **I check the Server/Client boundary explicitly on every new component**, the same way I'd check for a missing `key` prop — it's now a reflexive thing to glance for, not a result.
+- **I look for "round-trip" logic** — data being formatted into a string and then immediately parsed back apart — as a smell that the data shape itself should change.
+- **I treat AI-generated code as a strong first draft, not a finished PR.** The review bar didn't go down because the code came out fast; if anything it went up, because confident-sounding code makes you less likely to slow down and actually read it.
+
+The honest takeaway isn't "don't use AI for code." It's that the skill that matters now isn't typing the code yourself — it's reading generated code critically and fast, which turns out to be a different muscle than writing it.

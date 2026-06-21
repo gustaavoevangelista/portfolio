@@ -1,0 +1,47 @@
+---
+title: "Prompting for Code: What Actually Works"
+description: "Most prompting advice is written for general use cases. Generating code well has its own specific techniques — here's what consistently improves output quality."
+date: "2026-05-07"
+readingTime: "6 min read"
+tags: [ai, developer-experience, productivity]
+---
+
+## Generic prompting advice doesn't transfer cleanly
+
+A lot of "how to prompt AI" content is written for general writing or brainstorming tasks, and it transfers to code only partially. Code has properties that prose doesn't — it has to compile, it has to integrate with existing files, it has a correct answer (or at least a much smaller set of correct answers) in a way an essay doesn't. That changes which prompting techniques actually move the needle.
+
+Here's what's consistently worked across real projects, not toy examples.
+
+## Context-setting: show, don't just describe
+
+The single highest-leverage thing you can do is give the model the *actual surrounding code* — not a description of it. "I have a React form using react-hook-form and Zod" gets you generic, plausible-looking code. Pasting the actual schema, the actual component, and saying "add a phone number field following this exact pattern" gets you code that matches your conventions, your naming, your existing structure.
+
+The model isn't reasoning about your codebase in the abstract. It's pattern-matching against what's in front of it. The more of "in front of it" is your actual code, the more the output looks like it was written by someone who'd already read your repo.
+
+## Constraint-stacking beats one big ask
+
+A single large prompt — "build me a complete dashboard with auth, a sidebar, charts, and a settings page" — tends to produce code that's individually plausible but doesn't cohere as a system. Each piece gets generated somewhat independently, and the seams show.
+
+Breaking the same request into a sequence of smaller, constrained asks produces more coherent results: scaffold the layout first, then add the sidebar against that layout, then add one page at a time against the established pattern. Each step has less room to drift, and you catch problems while the blast radius is still small.
+
+## Asking for diffs instead of full files
+
+For changes to existing code, asking for a diff or a specific, localized edit rather than "regenerate the whole file" does two things: it reduces the chance of the model silently changing something you didn't ask about, and it makes the change easy for you to actually review. A full-file regeneration is much harder to scan for unintended changes than a focused diff — you end up either trusting it blindly or doing a line-by-line comparison against the old version, which defeats the time savings.
+
+## Naming the failure mode you're worried about
+
+Instead of just asking for a feature, naming the specific risk up front changes what the model pays attention to. "Build a debounced search input — make sure the debounce timer is cleaned up on unmount" gets you noticeably more careful cleanup logic than just "build a debounced search input." You're not just describing what you want; you're telling it which part of the implementation deserves extra care, which shifts where its "attention" effectively goes.
+
+This matters most for the bugs that don't show up immediately — race conditions, cleanup, memory leaks, edge cases on empty or error states. If you don't name the risk, you're relying on the model to guess that you care about it.
+
+## Asking it to state assumptions before generating
+
+For anything non-trivial, a useful pattern is asking the model to first state what it's assuming — about data shape, about which library version, about edge cases — before writing the code. This surfaces mismatches before you've already integrated code built on a wrong assumption. It's a small amount of extra back-and-forth that's much cheaper than discovering the mismatch after the code is already wired into three other files.
+
+## Treating the first output as a draft, structurally
+
+The biggest mindset shift isn't a specific phrase — it's treating the first generation as a draft you're going to review and likely adjust, not as a finished deliverable you paste in and move on from. Prompting well reduces how much adjustment is needed. It doesn't eliminate the review step, and prompts that are written as if it does ("just make it perfect") tend to produce the least careful output, because there's no specific thing for the model to focus extra attention on.
+
+## The throughline
+
+Every technique here reduces ambiguity in one form or another — showing real code instead of describing it, breaking large asks into smaller ones, naming the specific risk that matters. AI code generation doesn't fail because the model can't write the syntax. It fails when there's a gap between what you actually need and what you described, and the model fills that gap with the most statistically plausible guess rather than the answer specific to your situation. Good prompting is mostly the discipline of shrinking that gap before it has the chance to guess.

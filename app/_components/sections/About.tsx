@@ -2,6 +2,7 @@
 
 import { PERSON } from "@/lib/data";
 import Reveal from "../ui/Reveal";
+import Image from "next/image";
 
 export default function About() {
   return (
@@ -17,6 +18,7 @@ export default function About() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(124,92,252,0.13),transparent_65%)]" />
               <span className="relative text-7xl opacity-25 sm:text-8xl">👨‍💻</span>
               <p className="relative opacity-50">Add your photo here</p>
+              <Image src='/foto-perfil.webp' alt='Profile photo' width={200} height={300} className="absolute inset-0 w-full h-full object-cover" />
             </div>
 
             {/* Badge */}

@@ -1,0 +1,55 @@
+---
+title: "Server Components Aren't Just 'Faster React'"
+description: "The pitch for Server Components is usually 'smaller bundles, faster loads.' The bigger story is that they change where you're allowed to think client-first at all."
+date: "2026-05-06"
+readingTime: "7 min read"
+tags: [react, nextjs, architecture]
+---
+
+## The pitch undersells the change
+
+Most introductions to React Server Components lead with the performance story: less JavaScript shipped to the browser, faster initial loads, smaller bundles. All true. But leading with performance makes it sound like an optimization you bolt on — like switching image formats or adding a CDN. It isn't. It's a change to the default assumption every component in your codebase used to be able to make: "I might run in the browser, with access to the DOM, event handlers, and state."
+
+That assumption is no longer free. You now have to *earn* it, explicitly, with `"use client"`.
+
+## The mental model shift
+
+In the old model, every component was implicitly client-capable. You wrote a component, and whether it happened to use `useState` or not was almost incidental — the *capability* was always there if you needed it later.
+
+In the Server Component model, the default is the opposite: components are server-only unless marked otherwise. This means the question "where does this code run" stops being an afterthought and becomes part of how you design a component from the first line. Does this piece of UI need interactivity, browser APIs, or React state? If not, it can — and by default, should — stay on the server.
+
+This is a genuinely different design discipline. It's closer to how you'd think about a traditional server-rendered app with progressive enhancement than how the SPA era trained most of us to think.
+
+## What actually moves to the server
+
+In practice, a surprising amount of "typical React component" code has no real reason to run on the client:
+
+- Data fetching that doesn't depend on user interaction
+- Formatting, mapping, and rendering static content
+- Anything that's pure presentation with no event handlers
+- Markdown/MDX rendering, syntax highlighting, and similar transforms that are pure functions of their input
+
+None of this needs a browser. Keeping it server-side means it never ships as JavaScript, never needs to hydrate, and never contributes to your client bundle size.
+
+## The new bugs this introduces
+
+The shift isn't free, and the bugs it introduces are different in kind from what React developers are used to debugging.
+
+**The serialization boundary.** Props passed from a Server Component to a Client Component have to be serializable — they cross an actual network-like boundary, even if it's invisible in development. You can't pass a function, a class instance, or a `Map` across that line. This shows up as a runtime error that can be confusing if you don't know the boundary exists: the code looks fine, compiles fine, and still fails at the seam.
+
+**The "use client" cliff.** Once you mark a component `"use client"`, every component it imports and renders becomes part of the client bundle too — even if those children don't themselves need to be client components. It's easy to accidentally pull a large server-renderable subtree into the client bundle just because one interactive element sits near the top of it. The fix is usually to push the `"use client"` boundary as far down the tree as possible — wrap just the interactive leaf, not the whole section.
+
+**Forgetting the boundary even exists.** This is the subtle one. A component with no `useState` and no `useEffect` doesn't *look* like it needs to be client-side — but if it has an `onClick`, an `onMouseEnter`, or any other event handler, it does. Nothing about reading the JSX screams "this needs use client" the way a `useState` call does, which makes this an easy thing to miss until the runtime error tells you.
+
+## How to actually decide where a component belongs
+
+A practical heuristic that's served me well:
+
+1. Start every new component as a Server Component by default.
+2. The moment you reach for `useState`, `useEffect`, an event handler, or a browser-only API (`window`, `localStorage`), that component — and only that component, ideally — becomes a Client Component.
+3. Push that boundary as low in the tree as it'll go. If only a button needs `onClick`, the button is the Client Component, not the entire section it lives in.
+4. When passing data across the boundary, ask whether it's a plain serializable value. If it's a function or a complex object, restructure so the boundary only carries data, not behavior.
+
+## Why this matters more than the bundle-size pitch
+
+The performance benefit is real, but it's a side effect of a more fundamental shift: React is no longer a client-only mental model with server-rendering bolted on for SEO. It's becoming a genuinely hybrid system where "where does this run" is a first-class design decision, not an implementation detail. Treating it as just a faster version of the React you already knew is exactly how you end up with the kind of boundary bugs that look like nothing's wrong until the page throws.

@@ -1,0 +1,99 @@
+---
+title: "CSS Has Quietly Become a Programming Language"
+description: "Conditionals, scoping, parent selectors, color functions — CSS has absorbed a surprising amount of logic that used to require JavaScript. A tour of what changed."
+date: "2026-05-03"
+readingTime: "7 min read"
+tags: [css, frontend, web-platform]
+---
+
+## The quiet revolution
+
+If you learned CSS a decade ago and haven't kept up, the language you remember and the language that exists today are not the same tool. CSS used to be declarative in the most limited sense — you described a static set of rules, and anything resembling logic ("if this element has a certain child, do X") was JavaScript's job.
+
+That's no longer true. A surprising amount of conditional, contextual, and computed behavior now lives directly in CSS. Here's a tour of the features doing the heaviest lifting.
+
+## `:has()` — the parent selector we waited a decade for
+
+For years, "select a parent based on its children" was the canonical example of something CSS *couldn't* do. `:has()` does exactly that:
+
+```css
+/* Style a form group only if it contains an invalid input */
+.form-group:has(input:invalid) {
+  border-color: #f87171;
+}
+
+/* Style a card differently if it contains an image */
+.card:has(img) {
+  grid-template-rows: auto 1fr;
+}
+```
+
+This single selector eliminates a huge category of JavaScript that existed purely to add a class to a parent based on the state of a child. Form validation styling, conditional layouts, and "empty state" detection (`.list:not(:has(li))`) all become pure CSS.
+
+## Container queries — context instead of viewport
+
+Media queries answer "how big is the screen." Container queries answer the more useful question: "how big is *this component's container*." That distinction matters enormously for component-based architectures, where the same card component might render in a wide main column or a narrow sidebar.
+
+```css
+.card-container {
+  container-type: inline-size;
+}
+
+@container (min-width: 400px) {
+  .card {
+    grid-template-columns: 120px 1fr;
+  }
+}
+```
+
+This is the missing piece that makes truly reusable, context-aware components possible without JavaScript-based resize observers.
+
+## `@scope` — finally, real style encapsulation
+
+CSS specificity wars and accidental leakage have driven entire methodologies (BEM, CSS Modules, styled-components) into existence largely to work around CSS's lack of native scoping. `@scope` addresses this directly:
+
+```css
+@scope (.article) to (.comments) {
+  p { line-height: 1.7; }
+}
+```
+
+This rule applies only within `.article`, and explicitly stops before `.comments` — giving you a donut-scope without needing a build tool or naming convention to simulate it.
+
+## Nesting — nobody needs Sass for this anymore
+
+Native CSS nesting removes one of the last major reasons projects reached for a preprocessor:
+
+```css
+.card {
+  padding: 1rem;
+
+  & .title {
+    font-weight: 700;
+  }
+
+  &:hover {
+    border-color: var(--violet);
+  }
+}
+```
+
+It's not a 1:1 replacement for everything Sass does (no mixins, no real functions yet), but for the most common use — avoiding repetitive parent selectors — it's now built in.
+
+## `color-mix()` — computed color, not just custom properties
+
+CSS custom properties let you *store* a color. `color-mix()` lets you *compute* one:
+
+```css
+.button:hover {
+  background: color-mix(in srgb, var(--violet) 85%, white);
+}
+```
+
+This is genuinely new capability — generating tints, shades, and blends at the CSS layer instead of pre-computing every variant in a design tool or duplicating logic in JS.
+
+## What this means for how you should be working
+
+The practical implication isn't "stop using JavaScript." It's that the *default* should shift. Before reaching for a `ResizeObserver`, a `MutationObserver`, or a piece of state whose only job is toggling a class — check whether `:has()`, a container query, or `@scope` already solves it. The CSS solution is usually faster (it runs in the browser's style engine, not a JS event loop), more resilient (it doesn't break if a re-render skips an effect), and easier for the next person to read.
+
+The skill that's becoming more valuable isn't "knowing more CSS properties." It's recognizing *which problems no longer need JavaScript at all* — and that list has gotten a lot longer than most people's mental model of CSS has caught up to.
