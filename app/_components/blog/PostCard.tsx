@@ -1,6 +1,6 @@
 import Link from "next/link";
-import type { BlogPostMeta } from "@/lib/blog";
-import { formatPostDate } from "@/lib/blog";
+import type { BlogPostMeta } from "@/lib/blog-types";
+import { formatPostDate } from "@/lib/blog-utils";
 
 type Props = {
   post: BlogPostMeta;

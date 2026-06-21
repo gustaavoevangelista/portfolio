@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PostCard from "../_components/blog/PostCard";
+import BlogSearch from "../_components/blog/BlogSearch";
 import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
@@ -39,11 +39,7 @@ export default function BlogPage() {
         </div>
       </section>
 
-      <section className="grid gap-6">
-        {posts.map((post) => (
-          <PostCard key={post.slug} post={post} />
-        ))}
-      </section>
+      <BlogSearch posts={posts} />
     </div>
   );
 }

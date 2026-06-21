@@ -1,24 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import type { BlogFrontmatter, BlogPost, BlogPostMeta } from "./blog-types";
 
 const blogDirectory = path.join(process.cwd(), "content/blog");
-
-export type BlogFrontmatter = {
-  title: string;
-  description: string;
-  date: string;
-  tags: string[];
-  readingTime: string;
-};
-
-export type BlogPostMeta = BlogFrontmatter & {
-  slug: string;
-};
-
-export type BlogPost = BlogPostMeta & {
-  content: string;
-};
 
 function readBlogFiles() {
   if (!fs.existsSync(blogDirectory)) {
@@ -65,12 +50,4 @@ export function getPostBySlug(slug: string): BlogPost | null {
     content,
     ...(data as BlogFrontmatter),
   };
-}
-
-export function formatPostDate(date: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(date));
 }

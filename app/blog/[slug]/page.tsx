@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { compileMDX } from "next-mdx-remote/rsc";
-import { getAllPosts, getPostBySlug, formatPostDate } from "@/lib/blog";
+import { getAllPosts, getPostBySlug } from "@/lib/blog";
+import { formatPostDate } from "@/lib/blog-utils";
 import Link from "next/link";
 import type { ComponentPropsWithoutRef } from "react";
 
