@@ -1,0 +1,49 @@
+---
+title: "How I Ship Frontends With AI Without Losing the Plot"
+description: "The workflow I use to move faster with AI while still keeping the codebase coherent, testable, and reviewable."
+date: "2026-06-21"
+readingTime: "4 min read"
+tags:
+  - AI
+  - Frontend
+  - Workflow
+---
+
+AI is most useful to me when it reduces friction, not when it replaces judgment.
+
+The workflow that has held up best for me looks like this:
+
+1. Define the constraint first.
+2. Break the feature into small units.
+3. Ask AI for options, not just code.
+4. Keep the final implementation easy to review.
+
+That sounds obvious, but the difference is in how aggressively you keep the task bounded. If I let a tool generate an entire feature in one pass, I usually spend more time untangling intent than I would have spent building it manually.
+
+## What I optimize for
+
+I care about three things when I use AI in frontend work:
+
+- Faster context building.
+- Less repetition in implementation.
+- Better structure in the final result.
+
+If the tool helps me think more clearly, it earns its place.
+
+## A practical pattern
+
+I usually start with a small prompt like this:
+
+```ts
+Build the smallest version of this feature.
+List the tradeoffs before writing code.
+Keep the output easy to test.
+```
+
+That keeps the tool focused on the problem instead of the syntax.
+
+## The real value
+
+The biggest gain is not raw speed. It is staying in a state where I can still reason about the system after the feature is done.
+
+That is what makes AI sustainable in a real codebase.
