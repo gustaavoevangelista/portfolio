@@ -1,6 +1,7 @@
 import Footer from './_components/Footer';
 import Nav from './_components/Nav';
 import About from './_components/sections/About';
+import CodeSnippets from './_components/sections/CodeSnippets';
 import Contact from './_components/sections/Contact';
 import Blog from './_components/sections/Blog';
 import Experience from './_components/sections/Experience';
@@ -20,6 +21,7 @@ export default function Home() {
 				<Skills />
 				<Projects />
 				<Blog />
+				<CodeSnippets />
 				<Experience />
 				<Contact />
 			</main>

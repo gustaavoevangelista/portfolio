@@ -53,6 +53,274 @@ export const PROJECTS = [
 	},
 ];
 
+export type CodeSnippet = {
+	id: string;
+	title: string;
+	description: string;
+	language: string;
+	code: string;
+	tags: string[];
+};
+
+export const CODE_SNIPPETS: CodeSnippet[] = [
+	{
+		id: 'debounce-hook',
+		title: 'Debounce hook',
+		description:
+			'Delay a changing value until the user stops typing, useful for search inputs and expensive filters.',
+		language: 'TypeScript',
+		tags: ['React', 'Hook', 'Performance'],
+		code: `import { useEffect, useState } from "react";
+
+export function useDebounce<T>(value: T, delay = 400) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [value, delay]);
+
+  return debouncedValue;
+}`,
+	},
+	{
+		id: 'click-outside-detector',
+		title: 'Click Outside detector',
+		description:
+			'Close menus, popovers, and dialogs when the user clicks outside the referenced element.',
+		language: 'TypeScript',
+		tags: ['React', 'Hook', 'UI'],
+		code: `import { RefObject, useEffect } from "react";
+
+export function useClickOutside<T extends HTMLElement>(
+  ref: RefObject<T>,
+  onClickOutside: () => void
+) {
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      const element = ref.current;
+
+      if (!element || element.contains(event.target as Node)) {
+        return;
+      }
+
+      onClickOutside();
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [ref, onClickOutside]);
+}`,
+	},
+	{
+		id: 'previous-value-hook',
+		title: 'Previous value hook',
+		description:
+			'Keep track of the previous render value when comparing state changes or triggering transitions.',
+		language: 'TypeScript',
+		tags: ['React', 'Hook', 'State'],
+		code: `import { useEffect, useRef } from "react";
+
+export function usePrevious<T>(value: T) {
+  const previousValueRef = useRef<T>();
+
+  useEffect(() => {
+    previousValueRef.current = value;
+  }, [value]);
+
+  return previousValueRef.current;
+}`,
+	},
+	{
+		id: 'local-storage-hook',
+		title: 'LocalStorage Hook',
+		description:
+			'Persist state in localStorage while keeping a familiar useState-style API.',
+		language: 'TypeScript',
+		tags: ['React', 'Hook', 'Storage'],
+		code: `import { useEffect, useState } from "react";
+
+export function useLocalStorage<T>(key: string, initialValue: T) {
+  const [value, setValue] = useState<T>(() => {
+    if (typeof window === "undefined") {
+      return initialValue;
+    }
+
+    const storedValue = window.localStorage.getItem(key);
+    return storedValue ? JSON.parse(storedValue) : initialValue;
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}`,
+	},
+	{
+		id: 'simple-fetch-hook',
+		title: 'Simple Fetch hook',
+		description:
+			'Fetch JSON data with loading and error states while cancelling stale requests on cleanup.',
+		language: 'TypeScript',
+		tags: ['React', 'Hook', 'API'],
+		code: `import { useEffect, useState } from "react";
+
+type FetchState<T> = {
+  data: T | null;
+  error: string | null;
+  loading: boolean;
+};
+
+export function useFetch<T>(url: string) {
+  const [state, setState] = useState<FetchState<T>>({
+    data: null,
+    error: null,
+    loading: true,
+  });
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadData() {
+      try {
+        setState((current) => ({ ...current, loading: true }));
+
+        const response = await fetch(url, { signal: controller.signal });
+
+        if (!response.ok) {
+          throw new Error("Request failed");
+        }
+
+        const data = (await response.json()) as T;
+        setState({ data, error: null, loading: false });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        setState({
+          data: null,
+          error: error instanceof Error ? error.message : "Unknown error",
+          loading: false,
+        });
+      }
+    }
+
+    loadData();
+
+    return () => controller.abort();
+  }, [url]);
+
+  return state;
+}`,
+	},
+	{
+		id: 'detect-mobile-hook',
+		title: 'Detect Mobile hook',
+		description:
+			'Track whether the current viewport matches a mobile breakpoint and react to resize changes.',
+		language: 'TypeScript',
+		tags: ['React', 'Hook', 'Responsive'],
+		code: `import { useEffect, useState } from "react";
+
+export function useIsMobile(maxWidth = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: " + maxWidth + "px)");
+
+    function updateMatch(event: MediaQueryList | MediaQueryListEvent) {
+      setIsMobile(event.matches);
+    }
+
+    updateMatch(mediaQuery);
+    mediaQuery.addEventListener("change", updateMatch);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateMatch);
+    };
+  }, [maxWidth]);
+
+  return isMobile;
+}`,
+	},
+	{
+		id: 'scroll-to-top-button',
+		title: 'Scroll to top button',
+		description:
+			'Show a fixed action button after the user scrolls down and smoothly return to the page top.',
+		language: 'TypeScript',
+		tags: ['React', 'Component', 'UX'],
+		code: `import { useEffect, useState } from "react";
+
+export function ScrollToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    function handleScroll() {
+      setVisible(window.scrollY > 480);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <button
+      aria-label="Scroll to top"
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+    >
+      Back to top
+    </button>
+  );
+}`,
+	},
+	{
+		id: 'use-interval-hook',
+		title: 'Use Interval',
+		description:
+			'Run a callback on an interval without capturing stale state inside setInterval.',
+		language: 'TypeScript',
+		tags: ['React', 'Hook', 'Timer'],
+		code: `import { useEffect, useRef } from "react";
+
+export function useInterval(callback: () => void, delay: number | null) {
+  const callbackRef = useRef(callback);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    if (delay === null) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      callbackRef.current();
+    }, delay);
+
+    return () => window.clearInterval(intervalId);
+  }, [delay]);
+}`,
+	},
+];
+
 export const EXPERIENCE = [
 	{
 		period: '09/2025 — Present',
