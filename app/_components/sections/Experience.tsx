@@ -15,7 +15,7 @@ export default function Experience() {
             Work Experience
           </h2>
           <p className="mb-10 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-[1.05rem]">
-            My professional journey — update with your real history.
+            My professional journey
           </p>
         </Reveal>
 
